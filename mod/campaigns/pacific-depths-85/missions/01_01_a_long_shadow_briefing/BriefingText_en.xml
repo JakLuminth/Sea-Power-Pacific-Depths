@@ -2,10 +2,19 @@
 A LONG SHADOW
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: North Pacific east of Hokkaido. Oscar I K-525 is on a prewar patrol under strict emissions control.
 
 MISSION
 Shadow and classify K-525, then withdraw.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Shadow K-525 at standoff range, classify the contact by passive sensors, then use the withdrawal corridor.
+
+RULES OF ENGAGEMENT
+No weapons release unless the contact turns hostile. Do not compromise the patrol.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. Companion losses do not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

@@ -2,10 +2,19 @@
 HAMMER AT PETROPAVLOVSK
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Petropavlovsk approaches. An offshore ASW command and replenishment group supports the bastion defense.
 
 MISSION
 Ambush the offshore ASW command and replenishment group, then withdraw.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Approach under cover, strike the ASW command and replenishment group, then withdraw before the screen reacts.
+
+RULES OF ENGAGEMENT
+Tomahawk land attack is authorized against designated facilities. Conserve heavyweight torpedoes.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. USS Drum and USS San Francisco are assigned; their losses do not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

@@ -2,10 +2,19 @@
 THROUGH THE KURILS
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Bussol Strait and the Kuril barrier. Soviet ASW forces are sealing the northern route.
 
 MISSION
 Penetrate Bussol Strait and withdraw north.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Run the Bussol passage at depth, penetrate the barrier, and exfiltrate through the northern exit.
+
+RULES OF ENGAGEMENT
+Weapons release is authorized to clear the barrier. Avoid forces outside the route unless required.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. USS Drum is assigned; its loss does not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

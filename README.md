@@ -18,6 +18,8 @@ Contributors may optionally point the installed `StreamingAssets\pacific-depths-
 
 The campaign uses one authored Moderate-style baseline, with missions targeting approximately 60–90 minutes. There is no points economy, purchase screen, roster builder, commander setup, or custom Task Force difficulty picker. Patrol groups are fixed by the story: Los Angeles alone for missions 1–3 and optional 1, Los Angeles with Drum for missions 4–6 and optional 2, and all three boats for missions 7–9 and optional 3. Rearm and repair occur at the starts of missions 4, 6, and 8; there is no replenishment between missions 8 and 9.
 
+Each operation brief uses a military-sim layout with situation, mission, execution, rules of engagement, friendly-force status, and support notes. The same structure is localized for all nine supported game languages.
+
 Dynamic Unit Generation is used with constrained historical pools, authored ASW formations, mission-specific spawn zones, and persistent named enemy contacts. Objective-critical boats and tenders use exact one-for-one slots. Neutral traffic is authored and fixed.
 
 The campaign variables are:

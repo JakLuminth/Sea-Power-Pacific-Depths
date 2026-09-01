@@ -1,11 +1,20 @@
-<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><Viewbox Stretch="Uniform"><Border Width="1200" Height="760" Background="#101922" Padding="44"><StackPanel TextElement.Foreground="#D8DCE0" TextElement.FontFamily="Roboto"><TextBlock TextWrapping="Wrap" FontSize="18" LineHeight="28">EINSATZ
+<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><Viewbox Stretch="Uniform"><Border Width="1200" Height="760" Background="#101922" Padding="44"><StackPanel TextElement.Foreground="#D8DCE0" TextElement.FontFamily="Roboto"><TextBlock TextWrapping="Wrap" FontSize="18" LineHeight="28">AUFTRAG
 La-Pérouse-Tor
 
 LAGE
-Unterwasseroperationen im Pazifik verlangen Tarnung und Geduld.
+Das Einsatzgebiet ist umkämpft. Sowjetische ASW-Kräfte sind aktiv; die Patrouille hält Funk- und Ortungsdisziplin.
 
 AUFTRAG
 Die Meerenge passieren und nach Norden abdrehen.
 
+DURCHFÜHRUNG
+Erfüllen Sie den Auftrag mit passiven Sensoren, halten Sie Abstand und verlassen Sie das Gebiet über den zugewiesenen Rückzugsraum.
+
+EINSATZREGELN
+Waffeneinsatz nur, wenn der Auftrag ihn verlangt. Vermeiden Sie eine unnötige Eskalation.
+
 EIGENE KRÄFTE
-USS Los Angeles muss überleben.</TextBlock></StackPanel></Border></Viewbox></Grid>
+USS Los Angeles ist das Flaggschiff und muss überleben. USS Drum ist zugeteilt; ihr Verlust beendet den Einsatz nicht.
+
+UNTERSTÜTZUNG
+Überwasser- und Luftstreitkräfte stehen nicht unter Spielerkontrolle. Schonen Sie Waffen und Schäden für den nächsten Einsatz.</TextBlock></StackPanel></Border></Viewbox></Grid>

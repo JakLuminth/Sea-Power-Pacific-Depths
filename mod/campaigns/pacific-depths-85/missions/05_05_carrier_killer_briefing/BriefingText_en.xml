@@ -2,10 +2,19 @@
 CARRIER KILLER
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Northwest Pacific. An Oscar I and Victor III screen are approaching a carrier launch line.
 
 MISSION
 Destroy the screen command and withdraw.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Penetrate the escort screen, destroy the screen command, and break contact before carrier support arrives.
+
+RULES OF ENGAGEMENT
+Weapons release is authorized against the screen command. Conserve torpedoes for follow-on operations.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. USS Drum is assigned; its loss does not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

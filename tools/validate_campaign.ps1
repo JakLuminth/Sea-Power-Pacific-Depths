@@ -88,6 +88,17 @@ $repo = (Resolve-Path -LiteralPath $RepoRoot).Path
 $campaignRoot = Join-Path $repo 'mod\campaigns\pacific-depths-85'
 $campaignPath = Join-Path $campaignRoot 'campaign.ini'
 $locales = @('en','cn','ru','de','ja','es','fr','ko','vn')
+$requiredBriefingHeadings = @{
+    en = @('SITUATION','MISSION','EXECUTION','RULES OF ENGAGEMENT','FRIENDLY FORCES','SUPPORT')
+    cn = @('态势','任务','执行','交战规则','友军','支援')
+    ru = @('ОБСТАНОВКА','ЗАДАЧА','ПОРЯДОК ДЕЙСТВИЙ','ПРАВИЛА ПРИМЕНЕНИЯ ОРУЖИЯ','СВОИ','ОБЕСПЕЧЕНИЕ')
+    de = @('LAGE','AUFTRAG','DURCHFÜHRUNG','EINSATZREGELN','EIGENE KRÄFTE','UNTERSTÜTZUNG')
+    ja = @('状況','任務','実施要領','交戦規則','味方','支援')
+    es = @('SITUACIÓN','MISIÓN','EJECUCIÓN','REGLAS DE ENFRENTAMIENTO','FUERZAS PROPIAS','APOYO')
+    fr = @('SITUATION','MISSION','CONDUITE',"RÈGLES D'ENGAGEMENT",'FORCES AMIES','SOUTIEN')
+    ko = @('상황','임무','실행','교전 규칙','우군','지원')
+    vn = @('TÌNH HÌNH','NHIỆM VỤ','THỰC HIỆN','QUY TẮC GIAO CHIẾN','LỰC LƯỢNG TA','HỖ TRỢ')
+}
 $obsoleteFiles = @('player_task_force_roster.ini','commander_settings.ini')
 $expectedPatrolCounts = @{
     '01_01_a_long_shadow' = 1
@@ -204,6 +215,9 @@ foreach ($match in $missionMatches) {
                     $briefingRaw = Get-Content -Raw -LiteralPath $briefingPath
                     [void][xml]$briefingRaw
                     if ($briefingRaw.Contains([string][char]0xFFFD)) { Add-Failure "Mission$number $locale briefing contains a replacement character." }
+                    foreach ($heading in $requiredBriefingHeadings[$locale]) {
+                        if ($briefingRaw -notmatch ('(?m)^' + [regex]::Escape($heading) + '\r?$')) { Add-Failure "Mission$number $locale briefing is missing military-sim section '$heading'." }
+                    }
                     if ($locale -eq 'en') { $englishBriefingText = $briefingRaw }
                     else {
                         if ($briefingRaw -eq $englishBriefingText) { Add-Failure "Mission$number $locale briefing duplicates the English briefing." }

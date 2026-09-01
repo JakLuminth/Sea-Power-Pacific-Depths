@@ -2,10 +2,19 @@
 THE LAST DETERRENT
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Sea of Okhotsk bastion. Delta III K-433 is inside a layered Victor, Alfa, and surface screen.
 
 MISSION
 Destroy K-433 and withdraw from the bastion.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Locate and destroy K-433, then break through the layered screen and exit the bastion.
+
+RULES OF ENGAGEMENT
+Weapons release is authorized against K-433 and immediate screen elements. Preserve an escape route.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. USS Drum and USS San Francisco are assigned; their losses do not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

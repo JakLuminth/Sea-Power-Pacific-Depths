@@ -2,10 +2,19 @@
 RYUKYU SCREEN
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Ryukyu Trench. A Charlie II boat is moving toward the Soviet missile line under escort.
 
 MISSION
 Break the Soviet ASW screen.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Intercept the Charlie II before the missile line, break the screen, and exfiltrate through the withdrawal area.
+
+RULES OF ENGAGEMENT
+Weapons release is authorized against the Charlie II and screen contacts when required.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. Companion losses do not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

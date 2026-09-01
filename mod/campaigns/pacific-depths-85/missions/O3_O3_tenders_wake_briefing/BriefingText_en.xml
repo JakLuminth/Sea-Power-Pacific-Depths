@@ -2,10 +2,19 @@
 THE TENDER&apos;S WAKE
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Offshore Petropavlovsk. Don-class tender Magadansky Komsomolets is routing toward a guarded rendezvous.
 
 MISSION
 Track Magadansky Komsomolets, then withdraw.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Track the tender to the rendezvous, record its route, and withdraw without compromising the patrol.
+
+RULES OF ENGAGEMENT
+No weapons release. Do not reveal the patrol while tracking the tender.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. USS Drum and USS San Francisco are assigned; their losses do not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

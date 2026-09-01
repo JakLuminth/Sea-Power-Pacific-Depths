@@ -2,10 +2,19 @@
 BASTION WATCH
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Sea of Okhotsk bastion. Delta III K-433 is under close guard; this is a reconnaissance patrol.
 
 MISSION
 Classify K-433 without firing, then withdraw.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Classify K-433 and its guards using passive sensors. Maintain silence and withdraw on completion.
+
+RULES OF ENGAGEMENT
+No weapons release against K-433 or its guards. This is an intelligence collection mission.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. USS Drum and USS San Francisco are assigned; their losses do not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>

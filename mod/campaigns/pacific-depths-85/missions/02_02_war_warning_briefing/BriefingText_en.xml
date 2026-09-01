@@ -2,10 +2,19 @@
 WAR WARNING
 
 SITUATION
-Submerged operations in the Pacific require stealth and patience.
+OPAREA: Oyashio current. A Victor III boat is tightening its counter-search as the war warning takes effect.
 
 MISSION
 Destroy the Victor III and withdraw.
 
-FRIENDLY
-USS Los Angeles must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+EXECUTION
+Track the Victor III through the counter-search, break contact when the objective is complete, and withdraw.
+
+RULES OF ENGAGEMENT
+Hostilities are authorized after the warning; preserve the flagship and avoid unnecessary engagements.
+
+FRIENDLY FORCES
+USS Los Angeles is the flagship and must survive. Companion losses do not end the operation.
+
+SUPPORT
+No surface or air unit is under player control. Manage weapons and damage for the next patrol.</TextBlock></StackPanel></Border></Viewbox></Grid>
