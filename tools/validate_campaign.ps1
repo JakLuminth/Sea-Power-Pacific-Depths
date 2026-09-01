@@ -150,7 +150,7 @@ foreach ($match in $missionMatches) {
     }
     if ($type -ne 'Mission') { Add-Failure "Mission$number has unsupported Type=$type."; continue }
     if ($VerticalSlice -and $number -notin @('2','4')) { continue }
-    if ($Implemented -and $number -notin @('2','4','5','6','7','8','10')) { continue }
+    if ($Implemented -and $number -notin @('2','4','5','6','7','8','10','12','13','15')) { continue }
     $missionCount++
     $fileMatch = [regex]::Match($block, '(?m)^MissionFile=([^\r\n]+)')
     if (-not $fileMatch.Success) { Add-Failure "Mission$number has no MissionFile."; continue }
@@ -208,7 +208,7 @@ foreach ($match in $missionMatches) {
     }
 }
 $expectedEventCount = if ($VerticalSlice -or $Implemented) { 2 } else { 7 }
-$expectedMissionCount = if ($VerticalSlice) { 2 } elseif ($Implemented) { 7 } else { 12 }
+$expectedMissionCount = if ($VerticalSlice) { 2 } elseif ($Implemented) { 10 } else { 12 }
 if ($eventCount -ne $expectedEventCount) { Add-Failure "Expected $expectedEventCount timeline events, found $eventCount." }
 if ($missionCount -ne $expectedMissionCount) { Add-Failure "Expected $expectedMissionCount operations, found $missionCount." }
 
