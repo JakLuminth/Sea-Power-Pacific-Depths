@@ -77,13 +77,36 @@ function Get-TypesFromMission([string]$Text) {
 function Get-PlayerSubmarineSections([string]$Text) {
     return [regex]::Matches($Text, '(?ms)^\[Taskforce1Submarine\d+\]\s*(.*?)(?=^\[[^\r\n\]]+\]|\z)')
 }
+function Get-BlockValue([string]$Block, [string]$Key) {
+    if ($null -eq $Block) { return $null }
+    $match = [regex]::Match($Block, '(?m)^' + [regex]::Escape($Key) + '=([^\r\n]*)')
+    if ($match.Success) { return $match.Groups[1].Value.Trim() }
+    return $null
+}
 
 $repo = (Resolve-Path -LiteralPath $RepoRoot).Path
 $campaignRoot = Join-Path $repo 'mod\campaigns\pacific-depths-85'
 $campaignPath = Join-Path $campaignRoot 'campaign.ini'
-$rosterPath = Join-Path $campaignRoot 'player_task_force_roster.ini'
 $locales = @('en','cn','ru','de','ja','es','fr','ko','vn')
-$requiredPlayerTypes = @('usn_ssn_los_angeles','usn_ssn_sturgeon')
+$obsoleteFiles = @('player_task_force_roster.ini','commander_settings.ini')
+$expectedPatrolCounts = @{
+    '01_01_a_long_shadow' = 1
+    '02_02_war_warning' = 1
+    '03_03_ryukyu_screen' = 1
+    '04_04_laperouse_gate' = 2
+    '05_05_carrier_killer' = 2
+    '06_06_through_kurils' = 2
+    '07_07_bastion_watch' = 3
+    '08_08_hammer_petropavlovsk' = 3
+    '09_09_last_deterrent' = 3
+    'O1_O1_cold_wake' = 1
+    'O2_O2_picket_line' = 2
+    'O3_O3_tenders_wake' = 3
+}
+$replenishmentStems = @('04_04_laperouse_gate','06_06_through_kurils','08_08_hammer_petropavlovsk')
+$expectedPlayerTags = @('PD85_USS_Los_Angeles','PD85_USS_Drum','PD85_USS_San_Francisco')
+$expectedPlayerTypes = @('usn_ssn_los_angeles','usn_ssn_sturgeon','usn_ssn_los_angeles')
+$expectedPlayerVariants = @('Variant1','Variant28','Variant24')
 $englishBriefingObjectives = @(
     'Shadow and classify K-525, then withdraw.',
     'Destroy the Victor III and withdraw.',
@@ -100,40 +123,29 @@ $englishBriefingObjectives = @(
 )
 
 if (-not (Require-File $campaignPath 'campaign definition')) { exit 1 }
-if (-not (Require-File $rosterPath 'player roster')) { exit 1 }
 if (-not (Require-File (Join-Path $repo 'mod\_info.ini') 'mod metadata')) { exit 1 }
+if (-not (Require-File (Join-Path $campaignRoot 'enemy_theater_roster.ini') 'enemy DUG roster')) { exit 1 }
+foreach ($obsoleteFile in $obsoleteFiles) {
+    $obsoletePath = Join-Path $campaignRoot $obsoleteFile
+    if (Test-Path -LiteralPath $obsoletePath -PathType Leaf) { Add-Failure "Obsolete Task Force file remains: $obsoletePath" }
+}
 
 $campaignText = Get-Content -Raw -LiteralPath $campaignPath
 $campaignSections = Read-IniSections $campaignPath
 $campaign = $campaignSections['Campaign']
-$tfm = $campaignSections['TaskForceMode']
 $missions = $campaignSections['Missions']
 
 if ((Get-IniValue $campaign 'Type') -ne 'Linear') { Add-Failure 'Campaign Type must be Linear.' }
 if ((Get-IniValue $campaign 'Length') -ne '19') { Add-Failure 'Campaign Length must be 19 (7 events + 12 operations).' }
 if ((Get-IniValue $missions 'NumberOfMissions') -ne '19') { Add-Failure 'Campaign NumberOfMissions must be 19.' }
-if ((Get-IniValue $tfm 'Enabled') -ne 'True') { Add-Failure 'TaskForceMode must be enabled.' }
-if ((Get-IniValue $tfm 'TaskForceRequireFlagship') -ne 'True') { Add-Failure 'TaskForceRequireFlagship must be True.' }
-if ((Get-IniValue $tfm 'ShipIncludesAirwing') -ne 'False') { Add-Failure 'ShipIncludesAirwing must be False.' }
+if ($campaignSections.Contains('TaskForceMode')) { Add-Failure 'Campaign must not define a TaskForceMode section.' }
+if ($campaignText -match '(?im)^TaskForceMode') { Add-Failure 'Campaign contains a TaskForceMode key.' }
 
 foreach ($locale in $locales) {
     $section = $campaignSections["Language_$locale"]
     if ($null -eq $section) { Add-Failure "Campaign is missing Language_$locale."; continue }
     if ([string]::IsNullOrWhiteSpace((Get-IniValue $section 'Name'))) { Add-Failure "Campaign Language_$locale is missing Name." }
     if ([string]::IsNullOrWhiteSpace((Get-IniValue $section 'Description'))) { Add-Failure "Campaign Language_$locale is missing Description." }
-}
-
-$rosterSections = Read-IniSections $rosterPath
-$allowedSubs = $rosterSections['AllowedSubmarines']
-foreach ($type in $requiredPlayerTypes) {
-    if ($null -eq $allowedSubs -or -not ($allowedSubs | Where-Object { $_ -match ('^' + [regex]::Escape($type) + '=') })) {
-        Add-Failure "Player roster is missing $type in AllowedSubmarines."
-    }
-}
-foreach ($emptySection in @('AllowedVessels','AllowedHelicopters','AllowedAircraft')) {
-    foreach ($line in $rosterSections[$emptySection]) {
-        if ($line -match '=\s*\S') { Add-Failure "Player roster must not permit non-submarine units ($emptySection): $line" }
-    }
 }
 
 $missionMatches = [regex]::Matches($campaignText, '(?ms)^\[Mission(\d+)\]\s*(.*?)(?=^\[Mission\d+\]\s*|\z)')
@@ -205,13 +217,56 @@ foreach ($match in $missionMatches) {
         if ($locale -ne 'en' -and (Get-IniValue $languageSection 'Description') -eq $englishDescription) { Add-Failure "Mission$number Language_$locale duplicates the English Description." }
         if ($locale -ne 'en' -and (Get-IniValue $languageSection 'Name') -match '^(Mission|Einsatz|Misión|Mission\s*:|Nhiệm vụ)\s*:?[ ]+[A-Z0-9O]+$') { Add-Failure "Mission$number Language_$locale uses a locale-prefix-only Name." }
     }
+    if ($missionText -match '(?im)^TaskForceMode') { Add-Failure "Mission$number contains a TaskForceMode key." }
     if ($missionText -notmatch '(?m)^\[Taskforce1Submarine\d+\]') { Add-Failure "Mission$number has no player submarine slot." }
     if ($missionText -match '(?m)^\[Taskforce1(Vessel|Aircraft|LandUnit)\d+\]') { Add-Failure "Mission$number exposes a non-submarine player slot." }
-    foreach ($slot in (Get-PlayerSubmarineSections $missionText)) {
-        $slotText = $slot.Groups[1].Value
-        $typeMatch = [regex]::Match($slotText, '(?m)^Type=([^\r\n]+)')
-        if (-not $typeMatch.Success -or $typeMatch.Groups[1].Value.Trim() -notmatch '^usn_ssn_') { Add-Failure "Mission$number player slot is not a USN attack submarine." }
-        if ($slotText -notmatch '(?m)^TaskForceModeReplacedUnitIndex=\d+') { Add-Failure "Mission$number player submarine lacks ReplacedUnitIndex." }
+    $missionStem = [System.IO.Path]::GetFileNameWithoutExtension($missionFile)
+    if (-not $expectedPatrolCounts.ContainsKey($missionStem)) {
+        Add-Failure "Mission$number uses an unknown authored mission stem: $missionStem"
+    } else {
+        $expectedCount = [int]$expectedPatrolCounts[$missionStem]
+        $declaredCount = Get-IniValue $missionSections['Mission'] 'NumberOfTaskforce1Submarines'
+        if ($declaredCount -ne [string]$expectedCount) { Add-Failure "Mission$number must declare $expectedCount player submarine(s), found '$declaredCount'." }
+        $playerSlots = @(Get-PlayerSubmarineSections $missionText)
+        if ($playerSlots.Count -ne $expectedCount) { Add-Failure "Mission$number must contain $expectedCount authored player submarine slot(s), found $($playerSlots.Count)." }
+        $deploymentBlock = Get-SectionBlock $missionText 'Zone_PlayerDeployment'
+        $zoneWidth = 0.0
+        $zoneHeight = 0.0
+        [void][double]::TryParse((Get-BlockValue $deploymentBlock 'WidthNm'), [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$zoneWidth)
+        [void][double]::TryParse((Get-BlockValue $deploymentBlock 'HeightNm'), [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$zoneHeight)
+        for ($slotIndex = 0; $slotIndex -lt $playerSlots.Count; $slotIndex++) {
+            $slot = $playerSlots[$slotIndex]
+            $slotText = $slot.Groups[1].Value
+            $slotNumberMatch = [regex]::Match($slot.Value, '^\[Taskforce1Submarine(\d+)\]')
+            $slotNumber = if ($slotNumberMatch.Success) { [int]$slotNumberMatch.Groups[1].Value } else { -1 }
+            $expectedSlotNumber = $slotIndex + 1
+            if ($slotNumber -ne $expectedSlotNumber) { Add-Failure "Mission$number player slots must be numbered consecutively from 1." }
+            $expectedTag = $expectedPlayerTags[$slotIndex]
+            $expectedType = $expectedPlayerTypes[$slotIndex]
+            $expectedVariant = $expectedPlayerVariants[$slotIndex]
+            if ((Get-BlockValue $slotText 'Type') -ne $expectedType) { Add-Failure "Mission$number slot $expectedSlotNumber must use $expectedType." }
+            if ((Get-BlockValue $slotText 'VariantReference') -ne $expectedVariant) { Add-Failure "Mission$number slot $expectedSlotNumber must use $expectedVariant." }
+            if ((Get-BlockValue $slotText 'CampaignTag') -ne $expectedTag) { Add-Failure "Mission$number slot $expectedSlotNumber must use CampaignTag=$expectedTag." }
+            if ((Get-BlockValue $slotText 'SetSelected') -ne $(if ($slotIndex -eq 0) { 'True' } else { $null })) { Add-Failure "Mission$number slot $expectedSlotNumber has an invalid SetSelected value." }
+            $position = Get-BlockValue $slotText 'RelativePositionInNM'
+            if ([string]::IsNullOrWhiteSpace($position) -or $position -notmatch '^-?\d+(?:\.\d+)?(?:,-?\d+(?:\.\d+)?|,[^,\r\n]+),-?\d+(?:\.\d+)?$') { Add-Failure "Mission$number slot $expectedSlotNumber has invalid RelativePositionInNM geometry: '$position'." }
+            $positionMatch = [regex]::Match($position, '^(-?\d+(?:\.\d+)?),[^,\r\n]+,(-?\d+(?:\.\d+)?)$')
+            if ($positionMatch.Success -and $zoneWidth -gt 0 -and $zoneHeight -gt 0) {
+                $relativeX = [double]::Parse($positionMatch.Groups[1].Value, [System.Globalization.CultureInfo]::InvariantCulture)
+                $relativeY = [double]::Parse($positionMatch.Groups[2].Value, [System.Globalization.CultureInfo]::InvariantCulture)
+                if ([Math]::Abs($relativeX) -gt ($zoneWidth / 2.0) -or [Math]::Abs($relativeY) -gt ($zoneHeight / 2.0)) { Add-Failure "Mission$number slot $expectedSlotNumber spawns outside Zone_PlayerDeployment ($position vs ${zoneWidth}x${zoneHeight}NM)." }
+            }
+            $heading = Get-BlockValue $slotText 'Heading'
+            if ([string]::IsNullOrWhiteSpace($heading) -or $heading -notmatch '^-?\d+(?:\.\d+)?$') { Add-Failure "Mission$number slot $expectedSlotNumber has an invalid Heading." }
+            if ([string]::IsNullOrWhiteSpace((Get-BlockValue $slotText 'Waypoints'))) { Add-Failure "Mission$number slot $expectedSlotNumber has no authored Waypoints." }
+            if ((Get-BlockValue $slotText 'UnlimitedFuel') -ne 'False') { Add-Failure "Mission$number slot $expectedSlotNumber must set UnlimitedFuel=False." }
+            if ((Get-BlockValue $slotText 'TowedArrayDeployed') -ne 'True') { Add-Failure "Mission$number slot $expectedSlotNumber must set TowedArrayDeployed=True." }
+            $hasRearm = $slotText -match '(?m)^CampaignRearm=True(?:\r?$)'
+            $hasRepair = $slotText -match '(?m)^CampaignRepair=True(?:\r?$)'
+            $shouldReplenish = $missionStem -in $replenishmentStems
+            if ($shouldReplenish -and (-not $hasRearm -or -not $hasRepair)) { Add-Failure "Mission$number slot $expectedSlotNumber must have CampaignRearm=True and CampaignRepair=True." }
+            if (-not $shouldReplenish -and ($hasRearm -or $hasRepair)) { Add-Failure "Mission$number must not replenish player boats at this interval." }
+        }
     }
     if ($missionText -notmatch '(?m)^\[Taskforce1_Objectives\]') { Add-Failure "Mission$number has no Taskforce1_Objectives section." }
     if ($missionText -notmatch '(?m)^\[Zones\]') { Add-Failure "Mission$number has no deployment/spawn zones." }
@@ -233,11 +288,6 @@ foreach ($match in $missionMatches) {
         }
     } else {
         Add-Warning "GameRoot not found; installed unit ID checks skipped."
-    }
-    if ($number -in @('2','4')) {
-        if ($block -notmatch '(?m)^TaskForceModeIncludesSubmarine=True') { Add-Failure "Mission$number must include submarines." }
-        if ($block -notmatch '(?m)^TaskForceModeIncludesAirwing=False') { Add-Failure "Mission$number must exclude air wings." }
-        if ($block -notmatch '(?m)^TaskForceModeRequiredUnitType=Submarine') { Add-Failure "Mission$number must request submarine-only builder mode." }
     }
 }
 
@@ -313,17 +363,6 @@ foreach ($file in $missionFiles) {
     }
 }
 
-if ($campaignText -notmatch '(?m)^TaskForceModeCompletionRewardedUnits=usn_ssn_sturgeon,Variant28,1') { Add-Failure 'M3 reward must add USS Drum.' }
-if ($campaignText -notmatch '(?m)^TaskForceModeCompletionRewardedUnits=usn_ssn_los_angeles,Variant24,1') { Add-Failure 'M6 reward must add USS San Francisco.' }
-foreach ($number in @('6','10','15')) {
-    $block = Get-SectionBlock $campaignText "Mission$number"
-    if ($block -notmatch '(?m)^TaskForceModeRearm=True' -or $block -notmatch '(?m)^TaskForceModeRepair=True') { Add-Failure "Mission$number must offer the approved rearm/repair interval." }
-}
-foreach ($number in @('17','19')) {
-    $block = Get-SectionBlock $campaignText "Mission$number"
-    if ($block -match '(?m)^TaskForceModeRearm=True' -or $block -match '(?m)^TaskForceModeRepair=True') { Add-Failure "Mission$number must not offer replenishment." }
-}
-
 Write-Output "Pacific Depths '85 static validation"
 Write-Output "Repository: $repo"
 Write-Output "Operations: $missionCount; timeline events: $eventCount; locales: $($locales.Count); vertical slice: $VerticalSlice"
@@ -332,5 +371,5 @@ if ($failures.Count -gt 0) {
     Write-Error ("FAILED with {0} issue(s):`n - {1}" -f $failures.Count, ($failures -join "`n - "))
     exit 1
 }
-Write-Output 'PASS: campaign graph, locale parity, briefing/event XML, submarine-only player slots, variables, and installed IDs.'
+Write-Output 'PASS: authored-linear graph, locale parity, briefing/event XML, submarine patrol continuity, replenishment schedule, DUG references, variables, and installed IDs.'
 exit 0
