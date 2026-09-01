@@ -150,7 +150,7 @@ foreach ($match in $missionMatches) {
     }
     if ($type -ne 'Mission') { Add-Failure "Mission$number has unsupported Type=$type."; continue }
     if ($VerticalSlice -and $number -notin @('2','4')) { continue }
-    if ($Implemented -and $number -notin @('2','4','5','6','7','8','10','12','13','15')) { continue }
+    if ($Implemented -and $number -notin @('2','4','5','6','7','8','10','12','13','15','17','19')) { continue }
     $missionCount++
     $fileMatch = [regex]::Match($block, '(?m)^MissionFile=([^\r\n]+)')
     if (-not $fileMatch.Success) { Add-Failure "Mission$number has no MissionFile."; continue }
@@ -208,7 +208,7 @@ foreach ($match in $missionMatches) {
     }
 }
 $expectedEventCount = if ($VerticalSlice -or $Implemented) { 2 } else { 7 }
-$expectedMissionCount = if ($VerticalSlice) { 2 } elseif ($Implemented) { 10 } else { 12 }
+$expectedMissionCount = if ($VerticalSlice) { 2 } elseif ($Implemented) { 12 } else { 12 }
 if ($eventCount -ne $expectedEventCount) { Add-Failure "Expected $expectedEventCount timeline events, found $eventCount." }
 if ($missionCount -ne $expectedMissionCount) { Add-Failure "Expected $expectedMissionCount operations, found $missionCount." }
 
@@ -243,6 +243,34 @@ foreach ($file in $missionFiles) {
             Add-Failure "Unknown campaign variable reference in $file`: $value"
         }
     }
+    $objectiveBlock = Get-SectionBlock $text 'Taskforce1_Objectives'
+    $objectiveKeys = Get-IniKeys ([System.Collections.Generic.List[string]]($objectiveBlock -split "`r?`n"))
+    foreach ($action in [regex]::Matches($text, '(?m)^Action_Objectives(?:Completed|Failed|Cancel)=([^\r\n]+)')) {
+        foreach ($objective in ($action.Groups[1].Value -split ',')) {
+            $name = $objective.Trim()
+            if ($name -and -not $objectiveKeys.Contains($name)) { Add-Failure "Unknown objective '$name' referenced in $file" }
+        }
+    }
+    foreach ($slot in [regex]::Matches($text, '(?ms)^\[Taskforce2(?:Vessel|Submarine|Aircraft)\d+\]\s*(.*?)(?=^\[[^\r\n\]]+\]|\z)')) {
+        $slotText = $slot.Groups[1].Value
+        if ($slotText -match '(?m)^DynamicGenerationSlot=True' -and $slotText -notmatch '(?m)^DynamicGenerationRoster=Taskforce2') { Add-Failure "Dynamic enemy slot lacks Taskforce2 roster in $file" }
+        if ($slotText -match '(?m)^DynamicGenerationSlot=True' -and $slotText -notmatch '(?m)^DynamicGenerationSpawnZone=') { Add-Failure "Dynamic enemy slot lacks a spawn zone in $file" }
+    }
+    foreach ($withdrawal in [regex]::Matches($text, '(?ms)^\[Trigger\d+\]\s*Name=Withdraw.*?(?=^\[[^\r\n\]]+\]|\z)')) {
+        if ($withdrawal.Value -notmatch '(?m)^Disabled=True') { Add-Failure "Withdrawal trigger must begin disabled in $file" }
+        if ($withdrawal.Value -notmatch '(?m)^Action_EndMission=True') { Add-Failure "Withdrawal trigger must end the mission in $file" }
+    }
+}
+
+if ($campaignText -notmatch '(?m)^TaskForceModeCompletionRewardedUnits=usn_ssn_sturgeon,Variant28,1') { Add-Failure 'M3 reward must add USS Drum.' }
+if ($campaignText -notmatch '(?m)^TaskForceModeCompletionRewardedUnits=usn_ssn_los_angeles,Variant24,1') { Add-Failure 'M6 reward must add USS San Francisco.' }
+foreach ($number in @('6','10','15')) {
+    $block = Get-SectionBlock $campaignText "Mission$number"
+    if ($block -notmatch '(?m)^TaskForceModeRearm=True' -or $block -notmatch '(?m)^TaskForceModeRepair=True') { Add-Failure "Mission$number must offer the approved rearm/repair interval." }
+}
+foreach ($number in @('17','19')) {
+    $block = Get-SectionBlock $campaignText "Mission$number"
+    if ($block -match '(?m)^TaskForceModeRearm=True' -or $block -match '(?m)^TaskForceModeRepair=True') { Add-Failure "Mission$number must not offer replenishment." }
 }
 
 Write-Output "Pacific Depths '85 static validation"
