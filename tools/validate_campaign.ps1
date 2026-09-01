@@ -214,6 +214,21 @@ if (Test-Path -LiteralPath $m1Path -PathType Leaf) {
     foreach ($variable in @('PD85_O1_AGITracked','PD85_O2_PicketsMapped','PD85_O3_TenderTracked','PD85_M8_ASWSuppressed')) {
         if ($m1Text -notmatch ('(?m)^' + [regex]::Escape($variable) + '=')) { Add-Failure "M1 does not declare campaign variable $variable." }
     }
+    if ($m1Text -match '(?m)^PD85_[^=]+=PD85_') { Add-Failure 'M1 campaign variables must use shipped Name=False initialization syntax.' }
+    if ($m1Text -notmatch '(?ms)^\[Trigger4\]\s*.*?^Disabled=True') { Add-Failure 'M1 withdrawal trigger must begin disabled.' }
+    if ($m1Text -match '(?m)^DynamicGenerationFormation=Formation_') { Add-Failure 'M1 dynamic formation reference must omit the Formation_ section prefix.' }
+}
+$m2Path = Join-Path $campaignRoot 'missions\02_02_war_warning.ini'
+if (Test-Path -LiteralPath $m2Path -PathType Leaf) {
+    $m2Text = Get-Content -Raw -LiteralPath $m2Path
+    if ($m2Text -notmatch '(?ms)^\[Trigger4\]\s*.*?^Disabled=True') { Add-Failure 'M2 withdrawal trigger must begin disabled.' }
+    if ($m2Text -match '(?m)^DynamicGenerationFormation=Formation_') { Add-Failure 'M2 dynamic formation reference must omit the Formation_ section prefix.' }
+}
+$enemyRosterPath = Join-Path $campaignRoot 'enemy_theater_roster.ini'
+if (Test-Path -LiteralPath $enemyRosterPath -PathType Leaf) {
+    $enemyRoster = Get-Content -Raw -LiteralPath $enemyRosterPath
+    if ($enemyRoster -match '(?m)^wp_ssn_alfa=.*\bVariant1\b') { Add-Failure 'Enemy roster must exclude date-invalid Alfa Variant1.' }
+    if ($enemyRoster -match '(?m)^wp_ss_foxtrot=.*\bVariant23\b') { Add-Failure 'Enemy roster must exclude date-invalid Foxtrot Variant23.' }
 }
 foreach ($file in $missionFiles) {
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { continue }
