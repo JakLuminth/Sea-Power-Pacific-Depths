@@ -1,0 +1,12 @@
+# Sea Power runtime output and local saves
+Player.log
+ScriptEngine.log
+*.save
+*.log
+*.tmp
+
+# Local validation output
+validation-output/
+
+# Never package generated archives in this repository
+*.zip
