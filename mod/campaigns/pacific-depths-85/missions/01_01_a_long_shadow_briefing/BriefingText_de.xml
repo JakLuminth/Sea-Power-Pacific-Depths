@@ -1,1 +1,11 @@
-<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><Viewbox Stretch="Uniform"><Border Width="1200" Height="760" Background="#101922" Padding="44"><StackPanel TextElement.Foreground="#D8DCE0" TextElement.FontFamily="Roboto"><TextBlock Text="PACIFIC DEPTHS '85" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center"/><TextBlock Text="A LONG SHADOW" FontSize="21" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,18,0,24"/><TextBlock TextWrapping="Wrap" FontSize="18" LineHeight="28">1. SITUATION\nAn Oscar I boat, K-525, is shadowing the East Hokkaido patrol line.\n\n2. MISSION\nShadow and classify the target, then withdraw to the marked area.\n\n3. FRIENDLY\nUSS Los Angeles is the flagship and must survive.</TextBlock></StackPanel></Border></Viewbox></Grid>
+<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><Viewbox Stretch="Uniform"><Border Width="1200" Height="760" Background="#101922" Padding="44"><StackPanel TextElement.Foreground="#D8DCE0" TextElement.FontFamily="Roboto"><TextBlock TextWrapping="Wrap" FontSize="18" LineHeight="28">EINSATZ
+Einsatz 01: Pazifikpatrouille
+
+LAGE
+Unterwasseroperationen im Pazifik verlangen Tarnung und Geduld.
+
+AUFTRAG
+Erfüllen Sie den Auftrag und ziehen Sie sich zurück.
+
+EIGENE KRÄFTE
+USS Los Angeles muss überleben.</TextBlock></StackPanel></Border></Viewbox></Grid>

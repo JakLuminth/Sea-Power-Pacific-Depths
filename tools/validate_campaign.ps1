@@ -84,6 +84,20 @@ $campaignPath = Join-Path $campaignRoot 'campaign.ini'
 $rosterPath = Join-Path $campaignRoot 'player_task_force_roster.ini'
 $locales = @('en','cn','ru','de','ja','es','fr','ko','vn')
 $requiredPlayerTypes = @('usn_ssn_los_angeles','usn_ssn_sturgeon')
+$englishBriefingObjectives = @(
+    'Shadow and classify K-525, then withdraw.',
+    'Destroy the Victor III and withdraw.',
+    'Break the Soviet ASW screen.',
+    'Pass the strait and withdraw north.',
+    'Destroy the screen command and withdraw.',
+    'Penetrate Bussol Strait and withdraw north.',
+    'Classify K-433 without firing, then withdraw.',
+    'Ambush the offshore ASW command and replenishment group, then withdraw.',
+    'Destroy K-433 and withdraw from the bastion.',
+    'Classify the AGI, then withdraw without firing.',
+    'Map K-525''s ASW pickets, then withdraw.',
+    'Track Magadansky Komsomolets, then withdraw.'
+)
 
 if (-not (Require-File $campaignPath 'campaign definition')) { exit 1 }
 if (-not (Require-File $rosterPath 'player roster')) { exit 1 }
@@ -177,12 +191,19 @@ foreach ($match in $missionMatches) {
                 try {
                     $briefingRaw = Get-Content -Raw -LiteralPath $briefingPath
                     [void][xml]$briefingRaw
+                    if ($briefingRaw.Contains([string][char]0xFFFD)) { Add-Failure "Mission$number $locale briefing contains a replacement character." }
                     if ($locale -eq 'en') { $englishBriefingText = $briefingRaw }
-                    elseif ($briefingRaw -eq $englishBriefingText) { Add-Failure "Mission$number $locale briefing duplicates the English briefing." }
+                    else {
+                        if ($briefingRaw -eq $englishBriefingText) { Add-Failure "Mission$number $locale briefing duplicates the English briefing." }
+                        foreach ($englishObjective in $englishBriefingObjectives) {
+                            if ($briefingRaw.Contains($englishObjective)) { Add-Failure "Mission$number $locale briefing retains English objective text." }
+                        }
+                    }
                 } catch { Add-Failure "Invalid briefing XML for Mission$number ($locale): $briefingPath" }
             }
         }
         if ($locale -ne 'en' -and (Get-IniValue $languageSection 'Description') -eq $englishDescription) { Add-Failure "Mission$number Language_$locale duplicates the English Description." }
+        if ($locale -ne 'en' -and (Get-IniValue $languageSection 'Name') -match '^(Mission|Einsatz|Misión|Mission\s*:|Nhiệm vụ)\s*:?[ ]+[A-Z0-9O]+$') { Add-Failure "Mission$number Language_$locale uses a locale-prefix-only Name." }
     }
     if ($missionText -notmatch '(?m)^\[Taskforce1Submarine\d+\]') { Add-Failure "Mission$number has no player submarine slot." }
     if ($missionText -match '(?m)^\[Taskforce1(Vessel|Aircraft|LandUnit)\d+\]') { Add-Failure "Mission$number exposes a non-submarine player slot." }
