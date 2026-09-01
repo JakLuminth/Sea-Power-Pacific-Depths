@@ -1,11 +1,11 @@
 <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><Viewbox Stretch="Uniform"><Border Width="1200" Height="760" Background="#101922" Padding="44"><StackPanel TextElement.Foreground="#D8DCE0" TextElement.FontFamily="Roboto"><TextBlock TextWrapping="Wrap" FontSize="18" LineHeight="28">任务
-第05号任务
+航母猎手
 
 态势
 太平洋水下行动需要隐蔽和耐心。
 
 任务
-完成指定目标后撤离。
+摧毁航母警戒指挥舰后撤离。
 
 友军
 洛杉矶号必须生还。</TextBlock></StackPanel></Border></Viewbox></Grid>

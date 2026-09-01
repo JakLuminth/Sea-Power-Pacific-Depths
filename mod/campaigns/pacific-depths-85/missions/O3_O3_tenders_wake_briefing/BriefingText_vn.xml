@@ -1,11 +1,11 @@
 <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><Viewbox Stretch="Uniform"><Border Width="1200" Height="760" Background="#101922" Padding="44"><StackPanel TextElement.Foreground="#D8DCE0" TextElement.FontFamily="Roboto"><TextBlock TextWrapping="Wrap" FontSize="18" LineHeight="28">NHIỆM VỤ
-Nhiệm vụ O3: Tuần tra Thái Bình Dương
+Vệt của tàu tiếp tế
 
 TÌNH HÌNH
 Hoạt động tàu ngầm ở Thái Bình Dương đòi hỏi bí mật và kiên nhẫn.
 
 NHIỆM VỤ
-Hoàn thành mục tiêu được giao rồi rút lui.
+Theo dõi Magadansky Komsomolets rồi rút lui.
 
 LỰC LƯỢNG TA
 USS Los Angeles phải sống sót.</TextBlock></StackPanel></Border></Viewbox></Grid>
