@@ -6,11 +6,13 @@ The campaign contains nine main missions, three optional intelligence operations
 
 ## Installation
 
-The deployable content is the `mod` directory. During development it is intended to be exposed to the game as a Windows directory symbolic link:
+The deployable campaign is the `mod\campaigns\pacific-depths-85` folder. Copy that folder directly into Sea Power's `StreamingAssets` directory so the installed layout is:
 
-`<Sea Power installation>\Sea Power_Data\StreamingAssets\pacific-depths-85` → `<repository>\mod`
+`<Sea Power installation>\Sea Power_Data\StreamingAssets\pacific-depths-85`
 
-No installation or removal scripts are included. A directory soft link is required; hard links do not apply to directories. The link is created and verified directly during development with elevation because the Steam directory is protected.
+For Steam Workshop publication, upload the `pacific-depths-85` campaign folder rather than the repository root. The repository deliberately keeps campaign content beneath `mod\campaigns` so documentation, validation tools, Git metadata, and other development artifacts are not included in the Workshop item.
+
+Contributors may optionally point the installed `StreamingAssets\pacific-depths-85` entry at `mod\campaigns\pacific-depths-85` with a Windows directory symbolic link. This is a development convenience, not the normal installation method. No installation or removal scripts are included.
 
 ## Design and persistence
 
