@@ -2,7 +2,8 @@
 param(
     [string]$RepoRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$GameRoot = 'C:\Program Files (x86)\Steam\steamapps\common\Sea Power',
-    [switch]$VerticalSlice
+    [switch]$VerticalSlice,
+    [switch]$Implemented
 )
 
 $ErrorActionPreference = 'Stop'
@@ -133,6 +134,7 @@ foreach ($match in $missionMatches) {
     $type = $typeMatch.Groups[1].Value.Trim()
     if ($type -eq 'FreeEvent') {
         if ($VerticalSlice -and $number -notin @('1','3')) { continue }
+        if ($Implemented -and $number -notin @('1','3')) { continue }
         $eventCount++
         foreach ($locale in $locales) {
             if ($block -notmatch ('(?m)^Name_' + [regex]::Escape($locale) + '=')) { Add-Failure "Mission$number event missing Name_$locale." }
@@ -148,6 +150,7 @@ foreach ($match in $missionMatches) {
     }
     if ($type -ne 'Mission') { Add-Failure "Mission$number has unsupported Type=$type."; continue }
     if ($VerticalSlice -and $number -notin @('2','4')) { continue }
+    if ($Implemented -and $number -notin @('2','4','5','6','7','8','10')) { continue }
     $missionCount++
     $fileMatch = [regex]::Match($block, '(?m)^MissionFile=([^\r\n]+)')
     if (-not $fileMatch.Success) { Add-Failure "Mission$number has no MissionFile."; continue }
@@ -179,6 +182,7 @@ foreach ($match in $missionMatches) {
         if ($slotText -notmatch '(?m)^TaskForceModeReplacedUnitIndex=\d+') { Add-Failure "Mission$number player submarine lacks ReplacedUnitIndex." }
     }
     if ($missionText -notmatch '(?m)^\[Taskforce1_Objectives\]') { Add-Failure "Mission$number has no Taskforce1_Objectives section." }
+    if ($missionText -notmatch '(?m)^\[Zones\]') { Add-Failure "Mission$number has no deployment/spawn zones." }
     $types = Get-TypesFromMission $missionText
     if ($GameRoot -and (Test-Path -LiteralPath $GameRoot -PathType Container)) {
         $unitDirs = @('vessels','land_units','aircraft','biologic') | ForEach-Object { Join-Path $GameRoot ("Sea Power_Data\StreamingAssets\original\" + $_) }
@@ -203,8 +207,8 @@ foreach ($match in $missionMatches) {
         if ($block -notmatch '(?m)^TaskForceModeRequiredUnitType=Submarine') { Add-Failure "Mission$number must request submarine-only builder mode." }
     }
 }
-$expectedEventCount = if ($VerticalSlice) { 2 } else { 7 }
-$expectedMissionCount = if ($VerticalSlice) { 2 } else { 12 }
+$expectedEventCount = if ($VerticalSlice -or $Implemented) { 2 } else { 7 }
+$expectedMissionCount = if ($VerticalSlice) { 2 } elseif ($Implemented) { 7 } else { 12 }
 if ($eventCount -ne $expectedEventCount) { Add-Failure "Expected $expectedEventCount timeline events, found $eventCount." }
 if ($missionCount -ne $expectedMissionCount) { Add-Failure "Expected $expectedMissionCount operations, found $missionCount." }
 
