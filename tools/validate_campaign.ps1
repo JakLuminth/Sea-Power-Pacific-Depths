@@ -159,6 +159,9 @@ foreach ($match in $missionMatches) {
     if (-not (Require-File $missionFile "Mission$number definition")) { continue }
     $missionText = Get-Content -Raw -LiteralPath $missionFile
     $missionSections = Read-IniSections $missionFile
+    $missionStem = [System.IO.Path]::GetFileNameWithoutExtension($missionFile)
+    $englishDescription = Get-IniValue $missionSections['Language_en'] 'Description'
+    $englishBriefingText = $null
     foreach ($locale in $locales) {
         $languageSection = $missionSections["Language_$locale"]
         if ($null -eq $languageSection) { Add-Failure "Mission$number is missing Language_$locale."; continue }
@@ -167,11 +170,19 @@ foreach ($match in $missionMatches) {
         }
         $briefingMatch = [regex]::Match($languageSection, '(?m)^MissionBriefingLeftPane=(.+)$')
         if ($briefingMatch.Success) {
+            $expectedBriefingFragment = ('missions/' + $missionStem + '_briefing/').Replace('/', '[\\/]')
+            if ($briefingMatch.Groups[1].Value -notmatch $expectedBriefingFragment) { Add-Failure "Mission$number briefing for $locale references another operation." }
             $briefingPath = Convert-CampaignPath $briefingMatch.Groups[1].Value.Trim() $repo
             if (Require-File $briefingPath "Mission$number briefing $locale") {
-                try { [void][xml](Get-Content -Raw -LiteralPath $briefingPath) } catch { Add-Failure "Invalid briefing XML for Mission$number ($locale): $briefingPath" }
+                try {
+                    $briefingRaw = Get-Content -Raw -LiteralPath $briefingPath
+                    [void][xml]$briefingRaw
+                    if ($locale -eq 'en') { $englishBriefingText = $briefingRaw }
+                    elseif ($briefingRaw -eq $englishBriefingText) { Add-Failure "Mission$number $locale briefing duplicates the English briefing." }
+                } catch { Add-Failure "Invalid briefing XML for Mission$number ($locale): $briefingPath" }
             }
         }
+        if ($locale -ne 'en' -and (Get-IniValue $languageSection 'Description') -eq $englishDescription) { Add-Failure "Mission$number Language_$locale duplicates the English Description." }
     }
     if ($missionText -notmatch '(?m)^\[Taskforce1Submarine\d+\]') { Add-Failure "Mission$number has no player submarine slot." }
     if ($missionText -match '(?m)^\[Taskforce1(Vessel|Aircraft|LandUnit)\d+\]') { Add-Failure "Mission$number exposes a non-submarine player slot." }
@@ -183,6 +194,7 @@ foreach ($match in $missionMatches) {
     }
     if ($missionText -notmatch '(?m)^\[Taskforce1_Objectives\]') { Add-Failure "Mission$number has no Taskforce1_Objectives section." }
     if ($missionText -notmatch '(?m)^\[Zones\]') { Add-Failure "Mission$number has no deployment/spawn zones." }
+    if ($missionText -notmatch '(?ms)^\[Zone_PlayerDeployment\]\s*.*?^Type=Deployment') { Add-Failure "Mission$number has no player deployment zone." }
     $types = Get-TypesFromMission $missionText
     if ($GameRoot -and (Test-Path -LiteralPath $GameRoot -PathType Container)) {
         $unitDirs = @('vessels','land_units','aircraft','biologic') | ForEach-Object { Join-Path $GameRoot ("Sea Power_Data\StreamingAssets\original\" + $_) }
@@ -205,6 +217,24 @@ foreach ($match in $missionMatches) {
         if ($block -notmatch '(?m)^TaskForceModeIncludesSubmarine=True') { Add-Failure "Mission$number must include submarines." }
         if ($block -notmatch '(?m)^TaskForceModeIncludesAirwing=False') { Add-Failure "Mission$number must exclude air wings." }
         if ($block -notmatch '(?m)^TaskForceModeRequiredUnitType=Submarine') { Add-Failure "Mission$number must request submarine-only builder mode." }
+    }
+}
+
+$declaredCampaignVariables = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($allMissionFile in Get-ChildItem -LiteralPath (Join-Path $campaignRoot 'missions') -File -Filter '*.ini') {
+    $allMissionText = Get-Content -Raw -LiteralPath $allMissionFile.FullName
+    $variableBlock = Get-SectionBlock $allMissionText 'CampaignVariables'
+    if ($null -eq $variableBlock) { continue }
+    foreach ($line in ($variableBlock -split "`r?`n")) {
+        if ($line -match '^\s*(PD85_[A-Za-z0-9_]+)=False\s*$') { [void]$declaredCampaignVariables.Add($Matches[1]) }
+    }
+}
+foreach ($file in $missionFiles) {
+    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { continue }
+    $text = Get-Content -Raw -LiteralPath $file
+    foreach ($reference in [regex]::Matches($text, '(?m)^(?:Action_VariableSet|SpawnByVariableAND)=(PD85_[A-Za-z0-9_]+),')) {
+        $variable = $reference.Groups[1].Value
+        if (-not $declaredCampaignVariables.Contains($variable)) { Add-Failure "Undefined PD85 variable read/write in $file`: $variable" }
     }
 }
 $expectedEventCount = if ($VerticalSlice -or $Implemented) { 2 } else { 7 }
